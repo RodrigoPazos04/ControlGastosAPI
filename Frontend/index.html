@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Agregar gasto</h2>
+
+<input id="desc" placeholder="Descripción">
+<input id="monto" placeholder="Monto">
+<input id="categoria" placeholder="Categoría">
+
+<button onclick="agregar()">Agregar</button>
+
+<h2>Lista</h2>
+<button onclick="cargar()">Cargar gastos</button>
+
+<ul id="lista"></ul>
+
+<script>
+function cargar() {
+    fetch("https://localhost:7169/api/gastos")
+        .then(res => res.json())
+        .then(data => {
+
+            let lista = document.getElementById("lista");
+            lista.innerHTML = "";
+
+            data.forEach(gasto => {
+                let item = document.createElement("li");
+                item.innerHTML = gasto.descripcion + " - $" + gasto.monto +
+    				" <button onclick='eliminar(" + gasto.id + ")'>Eliminar</button>";
+                lista.appendChild(item);
+            });
+
+        });
+}
+
+function agregar() {
+
+    let gasto = {
+        descripcion: document.getElementById("desc").value,
+        monto: parseFloat(document.getElementById("monto").value),
+        categoria: document.getElementById("categoria").value
+    };
+
+    fetch("https://localhost:7169/api/gastos", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(gasto)
+    })
+    .then(() => {
+        cargar();
+    });
+}
+
+function eliminar(id) {
+    fetch("https://localhost:7169/api/gastos/" + id, {
+        method: "DELETE"
+    })
+    .then(() => {
+        cargar();
+    });
+}
+</script>
+
+</body>
+</html>
